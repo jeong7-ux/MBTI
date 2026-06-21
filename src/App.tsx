@@ -13,7 +13,6 @@ function App() {
   const [nickname, setNickname] = useState('');
   const [result, setResult] = useState<UserResult | null>(null);
   const [isSharedView, setIsSharedView] = useState(false);
-  const [bgTheme, setBgTheme] = useState('');
 
   // 1. Check for shared state in URL on mount
   useEffect(() => {
@@ -29,34 +28,6 @@ function App() {
         setView('result');
       }
     }
-  }, []);
-
-  // 2. Set adaptive gradient theme based on current time
-  useEffect(() => {
-    const updateTheme = () => {
-      const hour = new Date().getHours();
-      let themeGradient = '';
-
-      if (hour >= 6 && hour < 9) {
-        // Morning Bloom
-        themeGradient = 'linear-gradient(135deg, #FFF5F7 0%, #FFE4EB 50%, #FFF0E5 100%)';
-      } else if (hour >= 9 && hour < 17) {
-        // Day Light
-        themeGradient = 'linear-gradient(135deg, #FAFAFE 0%, #F4F4F8 100%)';
-      } else if (hour >= 17 && hour < 21) {
-        // Golden Hour
-        themeGradient = 'linear-gradient(135deg, #FFF8F0 0%, #FFE8D6 50%, #FFF0F5 100%)';
-      } else {
-        // Night Garden
-        themeGradient = 'linear-gradient(135deg, #0D0D1A 0%, #1A1A2E 50%, #1E1535 100%)';
-      }
-      setBgTheme(themeGradient);
-    };
-
-    updateTheme();
-    // Check every minute
-    const interval = setInterval(updateTheme, 60000);
-    return () => clearInterval(interval);
   }, []);
 
   const handleStartTest = (name: string) => {
@@ -98,7 +69,7 @@ function App() {
   };
 
   return (
-    <div id="root" style={{ background: bgTheme }}>
+    <div id="root-inner">
       {view === 'intro' && (
         <Intro 
           onStart={handleStartTest} 

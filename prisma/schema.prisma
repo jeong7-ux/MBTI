@@ -1,0 +1,274 @@
+// 마인드타입 · Prisma 스키마
+// SSOT: _workspace/01_architect_datamodel.md (§3 엔티티) · 계약 lib/contract/index.ts
+// 소유: backend-engineer. 계약/데이터 shape 변경은 architect 경유.
+// 재현성(F-30): 문항 원문 수정은 새 version/새 row, 세션은 questionSetVersion으로 집합 고정.
+
+generator client {
+  provider = "prisma-client-js"
+  // native = 로컬 개발, rhel-openssl-3.0.x = Netlify Functions(AWS Lambda) 런타임.
+  binaryTargets = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql" // Product[] 스칼라 배열은 postgres 전용 (ADR-DM-1)
+  url      = env("DATABASE_URL")
+}
+
+// ── 열거형 (계약 lib/contract §1 미러) ─────────────────────────
+enum Dimension {
+  EI
+  SN
+  TF
+  JP
+}
+
+enum Pole {
+  L // 첫글자: E/S/T/J
+  R // 둘째글자: I/N/F/P
+}
+
+enum Choice {
+  A // pole_a(L)측
+  B // pole_b(R)측
+}
+
+enum Format {
+  sentence
+  word_pair
+}
+
+enum Product {
+  basic
+  standard
+  pro
+}
+
+enum AvatarVersion {
+  M
+  F
+}
+
+enum AssetVariant {
+  card
+  avatar
+  og
+}
+
+enum SessionStatus {
+  in_progress
+  completed
+  abandoned
+}
+
+enum AuthProviderType {
+  kakao
+  google
+  email
+}
+
+enum ConsentPurpose {
+  service_required
+  marketing
+}
+
+// ── Question — 문항 (버전 걸린 문항, F-30) ─────────────────────
+model Question {
+  id                 String     @id @default(uuid())
+  code               String
+  part               Int // 1..5
+  format             Format
+  dimension          Dimension
+  poleA              Pole // 'L' 고정
+  poleB              Pole // 'R' 고정
+  textA              String
+  textB              String
+  stem               String? // word_pair는 null
+  facet              String? // FacetKey (EI1..JP5). null=미매핑(O-FACET)
+  facetPoleA         Pole?
+  facetPoleB         Pole?
+  productTags        Product[]
+  version            Int        @default(1)
+  questionSetVersion Int
+  isActive           Boolean    @default(true)
+  responses          Response[]
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+
+  @@index([questionSetVersion, dimension])
+  @@index([questionSetVersion, isActive])
+}
+
+// ── TestSession — 검사 세션 ───────────────────────────────────
+model TestSession {
+  id                    String        @id @default(uuid())
+  userId                String? // 비로그인 허용(F-20)
+  user                  User?         @relation(fields: [userId], references: [id])
+  resumeToken           String        @unique // 이어하기(추측 불가·§10)
+  resultToken           String?       @unique // 채점 후 결과 조회(추측 불가·§10)
+  product               Product
+  avatarVersion         AvatarVersion // 채점 무관(§6.1)
+  questionSetVersion    Int // 재현성 앵커
+  status                SessionStatus @default(in_progress)
+  upgradedFromSessionId String?
+  upgradedFrom          TestSession?  @relation("Upgrade", fields: [upgradedFromSessionId], references: [id])
+  upgrades              TestSession[] @relation("Upgrade")
+  deviceFingerprint     String? // 비로그인 재개 보조(F-04)
+  responses             Response[]
+  result                Result?
+  startedAt             DateTime      @default(now())
+  completedAt           DateTime?
+  // 보관기간(§10): 비로그인 기본 1년, 로그인 탈퇴 시까지 (배치 만료 처리 지점)
+  expiresAt             DateTime?
+
+  @@index([userId])
+  @@index([status])
+}
+
+// ── Response — 문항 응답 (멱등 저장, ADR-7) ────────────────────
+model Response {
+  id           String      @id @default(uuid())
+  sessionId    String
+  session      TestSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  questionId   String
+  question     Question    @relation(fields: [questionId], references: [id])
+  choice       Choice
+  elapsedMs    Int? // F-07, 비노출
+  revisedCount Int         @default(0)
+  answeredAt   DateTime    @default(now())
+
+  @@unique([sessionId, questionId]) // 멱등 upsert 키 (재전송 안전)
+  @@index([sessionId])
+}
+
+// ── Result — 채점 결과 (표준양식 DATA{} 투영) ─────────────────
+model Result {
+  id              String      @id @default(uuid())
+  sessionId       String      @unique
+  session         TestSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  typeCode        String // 16유형
+  product         Product // 부록 D 섹션 노출 결정자
+  scores          Json // {E,I,S,N,T,F,J,P}
+  clarity         Json // {EI,SN,TF,JP}: {pole,score,band,percent}
+  functionStack   Json // {dominant,auxiliary,tertiary,inferior}
+  facets          Json? // 20 FacetKey → {side,score,zone} · pro만
+  clarityIndex    Int?
+  omittedCount    Int         @default(0)
+  tieBreakApplied Json? // 동점 보정 적용 지표 배열(F/R4)
+  reportVersion   Int
+  scoredAt        DateTime    @default(now())
+}
+
+// ── ReportContent — 리포트 콘텐츠 CMS (F-31, §5.4) ─────────────
+model ReportContent {
+  id         String   @id @default(uuid())
+  typeCode   String
+  blockKey   String
+  facetKey   String?
+  body       Json
+  minProduct Product
+  version    Int      @default(1)
+  status     String   @default("draft") // draft|published
+  updatedAt  DateTime @updatedAt
+
+  @@unique([typeCode, blockKey, facetKey, version])
+  @@index([typeCode, status])
+}
+
+// ── CharacterAsset — 캐릭터 에셋 34종 (F-32, §6.4) ─────────────
+model CharacterAsset {
+  id          String       @id @default(uuid())
+  typeCode    String // 16유형 or 'VERSION'
+  gender      AvatarVersion
+  variant     AssetVariant
+  fileUrl     String
+  fileName    String // '{TYPE}_{M|F}' 규칙 검증 대상
+  altText     String
+  temperament String // NT|NF|SJ|SP
+  version     Int          @default(1)
+
+  @@unique([typeCode, gender, variant, version])
+}
+
+// ── User / 인증 / 동의 / 삭제 (F-20~23) ───────────────────────
+model User {
+  id           String                @id @default(uuid())
+  email        String?               @unique
+  createdAt    DateTime              @default(now())
+  deletedAt    DateTime? // soft-delete (§10, 탈퇴 시 세션/응답/결과는 cascade hard-delete)
+  birthYear    Int? // 만 14세 미만 수집 제한 게이트(§10)
+  identities   AuthIdentity[]
+  sessions     TestSession[]
+  consents     ConsentRecord[]
+  deletionReqs DataDeletionRequest[]
+}
+
+model AuthIdentity {
+  id          String           @id @default(uuid())
+  userId      String
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider    AuthProviderType
+  providerUid String
+  createdAt   DateTime         @default(now())
+
+  @@unique([provider, providerUid])
+  @@index([userId])
+}
+
+model ConsentRecord {
+  id        String         @id @default(uuid())
+  userId    String?
+  user      User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessionId String? // 비로그인 검사 동의
+  purpose   ConsentPurpose // 필수(service_required)/선택(marketing) 분리(F-22)
+  granted   Boolean
+  version   Int
+  grantedAt DateTime       @default(now())
+
+  @@index([userId])
+  @@index([sessionId])
+}
+
+model DataDeletionRequest {
+  id          String    @id @default(uuid())
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  requestedAt DateTime  @default(now())
+  completedAt DateTime?
+}
+
+// ── 접근 로그 (§10 민감정보 접근 기록) ────────────────────────
+model AccessLog {
+  id         String   @id @default(uuid())
+  action     String // 'result.view' | 'session.resume' | 'data.delete' ...
+  targetType String // 'result' | 'session' | 'user'
+  targetId   String
+  actorId    String? // userId or null(비로그인)
+  ip         String?
+  createdAt  DateTime @default(now())
+
+  @@index([targetType, targetId])
+  @@index([createdAt])
+}
+
+// ── (P2) 그룹 도구 — 스키마만 확정 (F-40~43) ──────────────────
+model Group {
+  id          String        @id @default(uuid())
+  ownerUserId String
+  inviteCode  String        @unique
+  name        String
+  seatLimit   Int
+  expiresAt   DateTime?
+  members     GroupMember[]
+  createdAt   DateTime      @default(now())
+}
+
+model GroupMember {
+  id            String  @id @default(uuid())
+  groupId       String
+  group         Group   @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  sessionId     String?
+  userId        String?
+  consentShared Boolean @default(false) // 결과 공개 동의(F-43)
+
+  @@index([groupId])
+}

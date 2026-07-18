@@ -1,0 +1,64 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 480 560" width="480" height="560" role="img" aria-label="ENFJ 선도자 캐릭터 (남성 버전)">
+  <title>ENFJ 선도자 캐릭터 (남성 버전)</title>
+  <desc>마인드타입 자체 제작 플랫 벡터 캐릭터 시안 v0.9 · 외교관 기질(NF)</desc>
+  <defs><clipPath id="card"><rect x="0" y="0" width="480" height="560" rx="36"/></clipPath></defs>
+  <g clip-path="url(#card)">
+    <g id="bg">
+    <rect x="0" y="0" width="480" height="560" rx="36" fill="#E9F7EE"/>
+    <circle cx="240" cy="238" r="150" fill="#FFFFFF" opacity="0.42"/>
+    <ellipse cx="240" cy="548" rx="210" ry="70" fill="#cae7d5" opacity="0.6"/>
+  </g>
+    
+    <g id="body">
+    <rect x="218" y="298" width="44" height="56" rx="16" fill="#DDA679"/>
+    <path d="M80 560 L80 412
+             Q82 340 170 326
+             Q240 318 310 326
+             Q398 340 400 412
+             L400 560 Z" fill="#43A868"/>
+    <path d="M170 326 Q240 318 310 326
+             L310 350 Q240 338 170 350 Z" fill="#36815b"/>
+  </g>
+    <g id="accessory">
+        <path d="M210 334 L240 372 L270 334 Z" fill="#FFFFFF" opacity="0.9"/>
+        <path d="M231 338 L240 348 L249 338 L245 334 L235 334 Z" fill="#36815b"/>
+        <path d="M233 348 L247 348 L251 396 L240 406 L229 396 Z" fill="#36815b"/>
+      </g>
+    <g id="head">
+    <ellipse cx="150" cy="246" rx="14" ry="18" fill="#DDA679"/>
+    <ellipse cx="330" cy="246" rx="14" ry="18" fill="#DDA679"/>
+    <circle cx="240" cy="232" r="96" fill="#DDA679"/>
+    <circle cx="182" cy="262" r="15" fill="#EFA7A0" opacity="0.30"/>
+    <circle cx="298" cy="262" r="15" fill="#EFA7A0" opacity="0.30"/>
+    <ellipse cx="210" cy="238" rx="7.5" ry="9" fill="#31303A"/>
+    <ellipse cx="270" cy="238" rx="7.5" ry="9" fill="#31303A"/>
+    <circle cx="212.4" cy="235.4" r="2.2" fill="#FFFFFF"/>
+    <circle cx="272.4" cy="235.4" r="2.2" fill="#FFFFFF"/>
+    <path d="M201 222 q9 -6 18 0" fill="none" stroke="#292a34" stroke-width="3.4" stroke-linecap="round"/>
+    <path d="M261 222 q9 -6 18 0" fill="none" stroke="#292a34" stroke-width="3.4" stroke-linecap="round"/>
+    <path d="M237 250 q3 5 6 0" fill="none" stroke="#a68268" stroke-width="3" stroke-linecap="round"/>
+    <path d="M225 268 q15 14 30 0" fill="none" stroke="#B9605C" stroke-width="4" stroke-linecap="round"/>
+  </g>
+    <g id="hair"><path d="M142 238
+        Q138 156 188 134
+        Q240 112 292 134
+        Q342 156 338 238
+        Q322 204 280 202
+        Q258 218 240 210
+        Q220 218 200 202
+        Q158 204 142 238 Z" fill="#2B2A33"/></g>
+    <g id="badge">
+    <circle cx="384" cy="112" r="51" fill="#FFFFFF"/>
+    <circle cx="384" cy="112" r="46" fill="#43A868"/>
+    <path d="M384.0 88.0 L389.9 103.9 L406.8 104.6 L393.5 115.1 L398.1 131.4 L384.0 122.0 L369.9 131.4 L374.5 115.1 L361.2 104.6 L378.1 103.9 Z" fill="#FFFFFF"/>
+  </g>
+    <g id="type">
+    <rect x="156" y="494" width="168" height="44" rx="22" fill="#FFFFFF"/>
+    <rect x="157" y="495" width="166" height="42" rx="21" fill="none" stroke="#aad8bb" stroke-width="1.5"/>
+    <circle cx="178" cy="516" r="6" fill="#43A868"/>
+    <text x="248" y="517" text-anchor="middle" dominant-baseline="central"
+      font-family="ui-monospace,'Cascadia Code',Consolas,monospace" font-size="20" font-weight="800"
+      letter-spacing="3" fill="#17263B">ENFJ</text>
+  </g>
+  </g>
+</svg>

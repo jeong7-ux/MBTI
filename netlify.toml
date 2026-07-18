@@ -1,0 +1,27 @@
+# Netlify 배포 설정 — 마인드타입 (Next.js 14 App Router)
+# 공식 Next.js 런타임 플러그인이 API Route/SSR을 Netlify Functions로 자동 변환한다.
+
+[build]
+  # postinstall(prisma generate)이 설치 단계에서 Prisma Client를 생성한다.
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "20"
+  # Prisma가 빌드 시 엔진을 받도록(캐시 환경 대비)
+  PRISMA_CLIENT_ENGINE_TYPE = "library"
+
+# 공식 Next.js 플러그인 (SSR·API·이미지 최적화 자동 처리)
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
+
+# 정적 에셋(캐릭터 SVG·버전 카드) 장기 캐시
+[[headers]]
+  for = "/characters/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+  for = "/version/*"
+  [headers.values]
+    Cache-Control = "public, max-age=86400"

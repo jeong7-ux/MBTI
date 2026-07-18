@@ -1,0 +1,41 @@
+# ── deps / build ──
+/node_modules
+/.pnp
+.pnp.js
+/.next/
+/out/
+/build
+next-env.d.ts
+*.tsbuildinfo
+
+# ── secrets ──
+.env
+.env*.local
+
+# ── prisma local db ──
+/prisma/*.db
+
+# ── OS / misc ──
+.DS_Store
+*.pem
+npm-debug.log*
+.vercel
+.netlify
+
+# ══════════════════════════════════════════════════════════════
+#  배포 제외 — 서비스 코드가 아닌 개발/설계/문서/스킬 산출물
+#  (GitHub→Netlify에는 아래를 올리지 않는다)
+# ══════════════════════════════════════════════════════════════
+/.claude/
+/_workspace/
+/kordoc/
+/taste-skill/
+CLAUDE.md
+마인드타입_PRD_v1.2.docx
+마인드타입_PRD_v1.2.md
+MBTI_결과보고서_표준양식_v2.html
+
+# 저작권 소스 이미지(타 IP) — 배포 금지(§15). 원본 SVG로 대체됨.
+라나.png
+코난.png
+/public/version/*.png

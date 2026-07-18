@@ -1,0 +1,47 @@
+{
+  "name": "mindtype",
+  "version": "0.1.0",
+  "private": true,
+  "description": "마인드타입 — 전문 MBTI 성격유형 검사 웹 서비스 (MVP/P0)",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:scoring": "vitest run packages/scoring",
+    "validate:mapping": "tsx scripts/validate-mapping.ts",
+    "prisma:generate": "prisma generate",
+    "prisma:migrate": "prisma migrate dev",
+    "db:seed": "tsx prisma/seed.ts",
+    "postinstall": "prisma generate"
+  },
+  "dependencies": {
+    "@prisma/client": "5.17.0",
+    "nanoid": "5.0.7",
+    "next": "14.2.5",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "zod": "3.23.8"
+  },
+  "devDependencies": {
+    "@resvg/resvg-js": "^2.6.2",
+    "@types/node": "20.14.12",
+    "@types/react": "18.3.3",
+    "@types/react-dom": "18.3.0",
+    "autoprefixer": "10.4.19",
+    "eslint": "8.57.0",
+    "eslint-config-next": "14.2.5",
+    "postcss": "8.4.40",
+    "prisma": "5.17.0",
+    "tailwindcss": "3.4.7",
+    "tsx": "4.16.2",
+    "typescript": "5.5.4",
+    "vitest": "2.0.5"
+  },
+  "engines": {
+    "node": ">=18.18"
+  }
+}

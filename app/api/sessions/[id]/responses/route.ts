@@ -2,12 +2,12 @@
 // 계약: SaveResponsesRequest → SaveResponsesResponse (lib/contract §4)
 // 멱등(ADR-7): (sessionId, questionId) upsert. 로컬 큐 재전송·수정이 중복을 만들지 않음.
 import { prisma } from '@/lib/db';
-import { ok, ERR, parseBody } from '@/lib/http';
+import { ok, ERR, parseBody, route } from '@/lib/http';
 import { saveResponsesSchema } from '@/lib/validation';
 import type { SaveResponsesResponse } from '@contract';
 import { PRODUCT_ITEM_COUNT } from '@contract';
 
-export async function PUT(req: Request, { params }: { params: { id: string } }) {
+export const PUT = route(async (req: Request, { params }: { params: { id: string } }) => {
   const sessionId = params.id;
   const parsed = await parseBody(req, saveResponsesSchema);
   if ('res' in parsed) return parsed.res;
@@ -47,4 +47,4 @@ export async function PUT(req: Request, { params }: { params: { id: string } }) 
     total: PRODUCT_ITEM_COUNT[session.product].total,
   };
   return ok(body);
-}
+});

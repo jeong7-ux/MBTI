@@ -2,14 +2,14 @@
 // 계약: UpgradeSessionRequest → UpgradeSessionResponse (lib/contract §4)
 // ADR-3: product_tags 포함관계(basic⊂standard⊂pro)로 기존 응답 재사용, 잔여만 응답.
 import { prisma } from '@/lib/db';
-import { ok, ERR, parseBody } from '@/lib/http';
+import { ok, ERR, parseBody, route } from '@/lib/http';
 import { newResumeToken } from '@/lib/token';
 import { upgradeSchema } from '@/lib/validation';
 import { loadQuestions } from '@/lib/questions';
 import type { UpgradeSessionResponse } from '@contract';
 import { PRODUCT_ORDER } from '@contract';
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export const POST = route(async (req: Request, { params }: { params: { id: string } }) => {
   const sessionId = params.id;
   const parsed = await parseBody(req, upgradeSchema);
   if ('res' in parsed) return parsed.res;
@@ -68,4 +68,4 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     nextQuestionId: next ? next.id : null,
   };
   return ok(body, { status: 201 });
-}
+});

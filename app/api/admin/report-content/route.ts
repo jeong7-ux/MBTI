@@ -1,13 +1,13 @@
 // GET/PUT /api/admin/report-content — 리포트 콘텐츠 16유형×블록 CRUD(F-31).
 // 계약: AdminReportContentListResponse / AdminReportContentUpsertRequest (lib/contract §4)
 import { prisma } from '@/lib/db';
-import { ok, parseBody } from '@/lib/http';
+import { ok, parseBody, route } from '@/lib/http';
 import { adminContentSchema } from '@/lib/validation';
 import { dbContentToContract } from '@/lib/serializers';
 import type { AdminReportContentListResponse, Product } from '@contract';
 import { Prisma } from '@prisma/client';
 
-export async function GET(req: Request) {
+export const GET = route(async (req: Request) => {
   const url = new URL(req.url);
   const typeCode = url.searchParams.get('type');
   const rows = await prisma.reportContent.findMany({
@@ -16,9 +16,9 @@ export async function GET(req: Request) {
   });
   const body: AdminReportContentListResponse = rows.map(dbContentToContract);
   return ok(body); // 배열 그대로(비래핑)
-}
+});
 
-export async function PUT(req: Request) {
+export const PUT = route(async (req: Request) => {
   const parsed = await parseBody(req, adminContentSchema);
   if ('res' in parsed) return parsed.res;
   const b = parsed.data.block;
@@ -45,4 +45,4 @@ export async function PUT(req: Request) {
         },
       });
   return ok(dbContentToContract(saved));
-}
+});

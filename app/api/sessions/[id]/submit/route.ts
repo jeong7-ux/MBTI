@@ -2,7 +2,7 @@
 // 계약: SubmitResponse (lib/contract §4)
 // 경계: 채점 수식 재구현 금지 — @/lib/scoring(=엔진 어댑터) 호출만.
 import { prisma } from '@/lib/db';
-import { ok, ERR } from '@/lib/http';
+import { ok, ERR, route } from '@/lib/http';
 import { newResultToken } from '@/lib/token';
 import { logAccess, getActor, clientIp } from '@/lib/auth';
 import { loadQuestions, toScoringQuestion } from '@/lib/questions';
@@ -17,7 +17,7 @@ const asJson = (v: unknown) => v as unknown as Prisma.InputJsonValue;
 
 const REPORT_VERSION = 1; // 리포트 콘텐츠 버전 스냅샷(F-31). 콘텐츠 배포 버전과 연동 예정.
 
-export async function POST(req: Request, { params }: { params: { id: string } }) {
+export const POST = route(async (req: Request, { params }: { params: { id: string } }) => {
   const sessionId = params.id;
   const session = await prisma.testSession.findUnique({
     where: { id: sessionId },
@@ -98,4 +98,4 @@ export async function POST(req: Request, { params }: { params: { id: string } })
     redirectUrl: `/result/${resultToken}`,
   };
   return ok(body, { headers: SCORING_IS_MOCK ? { 'x-scoring': 'mock' } : {} });
-}
+});

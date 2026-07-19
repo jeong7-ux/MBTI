@@ -2,14 +2,14 @@
 // 계약: ResultViewResponse (lib/contract §4)
 // sections는 서버가 SECTION_MATRIX로 계산(프론트 임의 해석 금지, ADR-2).
 import { prisma } from '@/lib/db';
-import { ok, ERR } from '@/lib/http';
+import { ok, ERR, route } from '@/lib/http';
 import { computeSectionVisibility } from '@/lib/sections';
 import { dbResultToContract, dbContentToContract, dbAssetToContract } from '@/lib/serializers';
 import { canViewResultDetail, getActor, logAccess, clientIp } from '@/lib/auth';
 import { PRODUCT_ORDER } from '@contract';
 import type { ResultViewResponse } from '@contract';
 
-export async function GET(req: Request, { params }: { params: { resultToken: string } }) {
+export const GET = route(async (req: Request, { params }: { params: { resultToken: string } }) => {
   const { resultToken } = params;
   const session = await prisma.testSession.findUnique({
     where: { resultToken },
@@ -54,4 +54,4 @@ export async function GET(req: Request, { params }: { params: { resultToken: str
     sections: computeSectionVisibility(result.product),
   };
   return ok(body);
-}
+});

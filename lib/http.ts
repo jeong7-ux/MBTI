@@ -1,6 +1,7 @@
 // HTTP 응답 헬퍼 — 계약 규약 준수.
 //  · 성공: payload 그대로 반환(비래핑). 배열은 배열로.
 //  · 에러: { error: ApiError } 래핑 (계약 lib/contract §3).
+//  · route(): 미처리 예외를 잡아 구조화된 500으로 변환 + 서버 로그 출력.
 import { NextResponse } from 'next/server';
 import type { ApiError } from '@contract';
 import { ZodError, type ZodSchema } from 'zod';
@@ -35,6 +36,34 @@ export const ERR = {
   NAMING_VIOLATION: (d?: Record<string, unknown>) => fail('NAMING_VIOLATION', '에셋 파일명 규칙 위반.', 422, d),
   INTERNAL: (msg = '서버 오류') => fail('INTERNAL_ERROR', msg, 500),
 };
+
+/**
+ * 라우트 핸들러 래퍼 — 미처리 예외를 구조화된 500으로 변환.
+ *  · 서버 로그(console.error)로 전체 스택 출력 → Netlify Functions 로그에서 원인 확인.
+ *  · 클라이언트에는 { error: { code:'INTERNAL_ERROR', message, details:{ error, name } } } 반환.
+ *    (details.error는 Prisma 등 원인 메시지 — 접속 문자열/비밀번호는 미포함).
+ * 과거엔 라우트에 try/catch가 없어 DB 예외가 프레임워크 기본 500(빈 본문)으로 나갔고,
+ * 클라이언트는 "요청 실패 (500)" 폴백만 표시해 원인 파악이 불가능했다(재발 방지).
+ */
+export function route<A extends unknown[]>(
+  handler: (req: Request, ...rest: A) => Promise<Response>,
+): (req: Request, ...rest: A) => Promise<Response> {
+  return async (req: Request, ...rest: A): Promise<Response> => {
+    try {
+      return await handler(req, ...rest);
+    } catch (e) {
+      const err = e instanceof Error ? e : new Error(String(e));
+      let path = '';
+      try { path = new URL(req.url).pathname; } catch { /* noop */ }
+      // Netlify Functions 로그로 전체 스택 출력(진단 원천).
+      console.error(`[api:500] ${req.method} ${path}\n${err.stack ?? err.message}`);
+      return fail('INTERNAL_ERROR', '서버 오류가 발생했습니다.', 500, {
+        error: err.message,
+        name: err.name,
+      });
+    }
+  };
+}
 
 /** zod 파싱 → 실패 시 계약 에러 응답. 성공 시 데이터 반환. */
 export async function parseBody<T>(req: Request, schema: ZodSchema<T>): Promise<{ data: T } | { res: NextResponse }> {

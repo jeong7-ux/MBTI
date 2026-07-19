@@ -1,11 +1,11 @@
 // GET /api/assets?type=&gender=&variant= — 캐릭터 에셋(§6.4).
 // 계약: AssetsQuery → AssetsResponse (= CharacterAsset[])
 import { prisma } from '@/lib/db';
-import { ok } from '@/lib/http';
+import { ok, route } from '@/lib/http';
 import { dbAssetToContract } from '@/lib/serializers';
 import type { AssetsResponse } from '@contract';
 
-export async function GET(req: Request) {
+export const GET = route(async (req: Request) => {
   const url = new URL(req.url);
   const type = url.searchParams.get('type');
   const gender = url.searchParams.get('gender');
@@ -22,4 +22,4 @@ export async function GET(req: Request) {
 
   const body: AssetsResponse = rows.map(dbAssetToContract);
   return ok(body); // 계약: 배열 그대로(비래핑)
-}
+});

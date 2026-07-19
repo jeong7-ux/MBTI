@@ -2,13 +2,13 @@
 // 계약: AdminQuestionsListResponse / AdminQuestionUpsertRequest (lib/contract §4)
 // ⚠️ 관리자 인증 게이트는 스텁(TODO: role 검증).
 import { prisma } from '@/lib/db';
-import { ok, ERR, parseBody } from '@/lib/http';
+import { ok, ERR, parseBody, route } from '@/lib/http';
 import { adminQuestionSchema } from '@/lib/validation';
 import { toAdminQuestion, balanceReport, currentSetVersion } from '@/lib/questions';
 import type { AdminQuestionsListResponse } from '@contract';
 import type { Format, Dimension, Pole, Product } from '@prisma/client';
 
-export async function GET(req: Request) {
+export const GET = route(async (req: Request) => {
   const url = new URL(req.url);
   const versionParam = url.searchParams.get('version');
   const version = versionParam ? Number(versionParam) : await currentSetVersion();
@@ -24,9 +24,9 @@ export async function GET(req: Request) {
     balance: balanceReport(questions), // §4.4 균형 검증
   };
   return ok(body);
-}
+});
 
-export async function PUT(req: Request) {
+export const PUT = route(async (req: Request) => {
   const parsed = await parseBody(req, adminQuestionSchema);
   if ('res' in parsed) return parsed.res;
   const q = parsed.data.question;
@@ -78,4 +78,4 @@ export async function PUT(req: Request) {
   });
 
   return ok(toAdminQuestion(saved));
-}
+});

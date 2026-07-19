@@ -1,13 +1,13 @@
 // GET /api/sessions/:token — 이어하기 상태 조회(F-04). [id] 세그먼트 = resumeToken.
 // 계약: ResumeStateResponse (lib/contract §4)
 import { prisma } from '@/lib/db';
-import { ok, ERR } from '@/lib/http';
+import { ok, ERR, route } from '@/lib/http';
 import { logAccess, getActor, clientIp } from '@/lib/auth';
 import { loadQuestions } from '@/lib/questions';
 import type { ResumeStateResponse, SessionStatus } from '@contract';
 import { PRODUCT_ITEM_COUNT } from '@contract';
 
-export async function GET(req: Request, { params }: { params: { id: string } }) {
+export const GET = route(async (req: Request, { params }: { params: { id: string } }) => {
   const resumeToken = params.id; // GET은 추측 불가 resumeToken으로 조회(계약 :token)
   const session = await prisma.testSession.findUnique({
     where: { resumeToken },
@@ -37,4 +37,4 @@ export async function GET(req: Request, { params }: { params: { id: string } }) 
     status: session.status as SessionStatus,
   };
   return ok(body);
-}
+});

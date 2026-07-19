@@ -2,10 +2,10 @@
 // 계약: DeleteMyDataResponse (lib/contract §4)
 // User soft-delete + TestSession/Response/Result hard-delete(cascade). 비식별 집계만 잔존.
 import { prisma } from '@/lib/db';
-import { ok, ERR } from '@/lib/http';
+import { ok, ERR, route } from '@/lib/http';
 import { getActor, logAccess, clientIp } from '@/lib/auth';
 
-export async function DELETE(req: Request) {
+export const DELETE = route(async (req: Request) => {
   const actor = getActor(req);
   if (!actor.userId) return ERR.UNAUTHORIZED();
   const userId = actor.userId;
@@ -37,4 +37,4 @@ export async function DELETE(req: Request) {
   });
 
   return ok({ ok: true as const, deletionRequestId: deletionReq.id });
-}
+});

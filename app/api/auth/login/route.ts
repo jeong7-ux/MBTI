@@ -1,11 +1,11 @@
 // POST /api/auth/login — 소셜(카카오·구글)+이메일 로그인. ⚠️ 스텁(실 OAuth 검증 지점 표기).
 // 계약: LoginRequest → LoginResponse (lib/contract §4)
 import { prisma } from '@/lib/db';
-import { ok, ERR, parseBody } from '@/lib/http';
+import { ok, ERR, parseBody, route } from '@/lib/http';
 import { loginSchema } from '@/lib/validation';
 import type { LoginResponse } from '@contract';
 
-export async function POST(req: Request) {
+export const POST = route(async (req: Request) => {
   const parsed = await parseBody(req, loginSchema);
   if ('res' in parsed) return parsed.res;
   const { provider, token, email, linkSessionId } = parsed.data;
@@ -52,4 +52,4 @@ export async function POST(req: Request) {
     linkedSessionIds,
   };
   return ok(body);
-}
+});

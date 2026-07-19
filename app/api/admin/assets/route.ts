@@ -2,7 +2,7 @@
 // 계약: AdminAssetsListResponse / AdminAssetUpsertRequest (lib/contract §4)
 // 네이밍 규칙 '{TYPE}_{M|F}' 검증 + 34종 누락 검사.
 import { prisma } from '@/lib/db';
-import { ok, ERR, parseBody } from '@/lib/http';
+import { ok, ERR, parseBody, route } from '@/lib/http';
 import { adminAssetSchema } from '@/lib/validation';
 import { dbAssetToContract } from '@/lib/serializers';
 import type { AdminAssetsListResponse, TypeCode, AvatarVersion } from '@contract';
@@ -22,7 +22,7 @@ function expectedName(typeCode: string, gender: string): string {
 // (그렇지 않으면 next build가 DB 접속을 시도해 실패). qa 이슈-1 조치.
 export const dynamic = 'force-dynamic';
 
-export async function GET() {
+export const GET = route(async () => {
   const rows = await prisma.characterAsset.findMany({
     orderBy: [{ typeCode: 'asc' }, { gender: 'asc' }, { variant: 'asc' }],
   });
@@ -43,9 +43,9 @@ export async function GET() {
 
   const body: AdminAssetsListResponse = { assets, namingViolations, missing };
   return ok(body);
-}
+});
 
-export async function PUT(req: Request) {
+export const PUT = route(async (req: Request) => {
   const parsed = await parseBody(req, adminAssetSchema);
   if ('res' in parsed) return parsed.res;
   const a = parsed.data.asset;
@@ -82,4 +82,4 @@ export async function PUT(req: Request) {
     },
   });
   return ok(dbAssetToContract(saved));
-}
+});

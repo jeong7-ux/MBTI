@@ -1,14 +1,14 @@
 // POST /api/sessions — 검사 세션 시작(상품·버전 선택, 재개 토큰 발급).
 // 계약: CreateSessionRequest → CreateSessionResponse (lib/contract §4)
 import { prisma } from '@/lib/db';
-import { ok, ERR, parseBody } from '@/lib/http';
+import { ok, ERR, parseBody, route } from '@/lib/http';
 import { newResumeToken } from '@/lib/token';
 import { createSessionSchema } from '@/lib/validation';
 import { currentSetVersion } from '@/lib/questions';
 import type { CreateSessionResponse } from '@contract';
 import { PRODUCT_ITEM_COUNT } from '@contract';
 
-export async function POST(req: Request) {
+export const POST = route(async (req: Request) => {
   const parsed = await parseBody(req, createSessionSchema);
   if ('res' in parsed) return parsed.res;
   const { product, avatarVersion, userId, deviceFingerprint } = parsed.data;
@@ -37,4 +37,4 @@ export async function POST(req: Request) {
     total: PRODUCT_ITEM_COUNT[product].total,
   };
   return ok(body, { status: 201 });
-}
+});

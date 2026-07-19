@@ -1,10 +1,11 @@
 // GET /api/results/:resultToken/og — 결과 공유 OG 이미지(선택 버전 캐릭터, F-15).
 // 현재 SVG 직접 서빙(image/svg+xml). PNG 변환은 렌더 인프라 결정 후 연결.
 import { prisma } from '@/lib/db';
+import { route } from '@/lib/http';
 import { buildOgSvg } from '@/lib/og';
 import type { TypeCode } from '@contract';
 
-export async function GET(_req: Request, { params }: { params: { resultToken: string } }) {
+export const GET = route(async (_req: Request, { params }: { params: { resultToken: string } }) => {
   const { resultToken } = params;
   const session = await prisma.testSession.findUnique({
     where: { resultToken },
@@ -38,4 +39,4 @@ export async function GET(_req: Request, { params }: { params: { resultToken: st
       'Cache-Control': 'public, max-age=86400',
     },
   });
-}
+});

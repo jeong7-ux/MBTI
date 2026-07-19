@@ -1,11 +1,11 @@
 // POST /api/consent — 개인정보 동의(필수/선택 분리, F-22).
 // 계약: ConsentRequest → ConsentResponse (lib/contract §4)
 import { prisma } from '@/lib/db';
-import { ok, parseBody } from '@/lib/http';
+import { ok, parseBody, route } from '@/lib/http';
 import { consentSchema } from '@/lib/validation';
 import type { ConsentResponse } from '@contract';
 
-export async function POST(req: Request) {
+export const POST = route(async (req: Request) => {
   const parsed = await parseBody(req, consentSchema);
   if ('res' in parsed) return parsed.res;
   const { purpose, granted, sessionId, userId, version } = parsed.data;
@@ -23,4 +23,4 @@ export async function POST(req: Request) {
 
   const body: ConsentResponse = { ok: true };
   return ok(body);
-}
+});

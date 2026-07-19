@@ -31,18 +31,30 @@ function TestInner() {
       const res = await s.submit();
       router.push(res.redirectUrl);
     } catch (e) {
+      // 실패 시 채점 화면을 유지하고 에러+재시도를 노출한다.
+      // (과거엔 여기서 completing을 꺼 마지막 문항으로 조용히 되돌아갔다.)
       setSubmitError(e instanceof Error ? e.message : '채점 요청에 실패했습니다. 잠시 후 다시 시도하세요.');
-      setCompleting(false);
     }
   }, [s, router]);
 
-  const onSelect = useCallback((choice: Choice) => {
-    if (!s.current) return;
-    void s.select(s.current.questionId, choice); // 서버 저장은 백그라운드, 전환 지연 0
+  const onSelect = useCallback(async (choice: Choice) => {
+    const q = s.current;
+    if (!q) return;
     const i = s.index;
-    if (i >= s.questions.length - 1) { void complete(); return; }
+
+    if (i >= s.questions.length - 1) {
+      // 마지막 문항: 즉시 채점 화면으로 전환(재탭 방지·즉각 피드백)한 뒤,
+      // 마지막 응답의 서버 저장 완료를 보장하고 채점 요청한다.
+      // (기존엔 저장을 기다리지 않고 submit해 INCOMPLETE 409 → 문항 재노출 버그가 있었다.)
+      setCompleting(true); setSubmitError(null);
+      await s.select(q.questionId, choice);
+      void complete();
+      return;
+    }
+
+    void s.select(q.questionId, choice); // 중간 문항은 백그라운드 저장(전환 지연 0)
     const nextPart = s.questions[i + 1].part;
-    if (nextPart !== s.current.part) setBridgeTo(i + 1);
+    if (nextPart !== q.part) setBridgeTo(i + 1);
     else s.setIndex(i + 1);
   }, [s, complete]);
 
@@ -55,9 +67,18 @@ function TestInner() {
   if (completing) {
     return (
       <CenterCard>
-        <h2 className="sec">응답을 채점하고 있어요</h2>
-        <p className="sec-sub">잠시만 기다려주세요. 결과 리포트로 이동합니다.</p>
-        {submitError && <><div className="note" style={{ background: 'var(--red-soft)', color: 'var(--red-deep)' }}>{submitError}</div><button className="btn btn-primary" onClick={complete}>다시 시도</button></>}
+        {submitError ? (
+          <>
+            <h2 className="sec">채점을 완료하지 못했어요</h2>
+            <div className="note" style={{ background: 'var(--red-soft)', color: 'var(--red-deep)' }}>{submitError}</div>
+            <button className="btn btn-primary" onClick={complete} style={{ marginTop: 12 }}>다시 시도</button>
+          </>
+        ) : (
+          <>
+            <h2 className="sec">응답을 채점하고 있어요</h2>
+            <p className="sec-sub">잠시만 기다려주세요. 결과 리포트로 이동합니다.</p>
+          </>
+        )}
       </CenterCard>
     );
   }

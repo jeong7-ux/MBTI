@@ -72,7 +72,7 @@ function TestInner() {
           <Link className="brand" href="/"><div className="logo">MT</div><h1 style={{ fontSize: '.9rem' }}>마인드타입</h1></Link>
           <div style={{ display: 'flex', gap: 8 }}>
             {s.offlineQueued && <span className="chip warn" title="오프라인 저장됨 — 자동 재전송 대기">오프라인 저장됨</span>}
-            {USE_MOCK && <span className="chip info" title="backend 미연결">실 API 연결 대기</span>}
+            {USE_MOCK && <span className="chip warn" title="개발 데모용 예시 문항 — 실 검사 아님">목 모드 · 예시 데이터</span>}
             <button type="button" className="ver" onClick={() => setHelp(true)} aria-label="도움말 열기">도움말</button>
           </div>
         </div>

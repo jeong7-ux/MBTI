@@ -5,8 +5,8 @@
  *  - 성공 응답은 payload를 그대로(비래핑) 반환, 에러만 { error: ApiError }.
  *  - fetchJson<T>의 T를 backend 실 응답 shape과 일치시킨다(제네릭 캐스팅 우회 금지).
  *
- * backend 엔드포인트 미완 상태 → USE_MOCK=true(기본). 계약 타입 기준 목 데이터로 UI 완성.
- * backend "엔드포인트 준비됨" 통지 시 NEXT_PUBLIC_API_BASE 설정 + USE_MOCK=false로 실연결.
+ * 기본은 실 API. 목 모드는 개발 데모용 opt-in(NEXT_PUBLIC_USE_MOCK='true')이며,
+ * 활성 시 전역 배지(MockBadge)로 노출된다 — 배포 환경에서 조용히 예시 데이터가 나가는 사고 방지.
  */
 import type {
   ApiError,
@@ -23,9 +23,11 @@ import type {
 import * as mock from './mock';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE ?? '';
-// 기본은 목(backend 미기동/DB 부재 환경에서도 UI 동작). 실 API 연결은 NEXT_PUBLIC_USE_MOCK='false'.
+// 기본은 실 API(미설정 = 실 연결). 목 모드는 정확히 'true'일 때만 — 개발 데모용 opt-in.
+// 과거 기본목(!=='false') 정책은 Netlify에 env 누락 시 배포 사이트가 조용히 예시 문항을
+// 반복 노출하는 사고를 냈다(재발 방지: 기본 반전 + 활성 시 전역 배지).
 // backend 라우트는 동일 오리진(/api/**)이므로 API_BASE 빈 값이어도 상대경로로 호출된다.
-export const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK !== 'false';
+export const USE_MOCK = process.env.NEXT_PUBLIC_USE_MOCK === 'true';
 
 /**
  * fetch용 base URL 해석.

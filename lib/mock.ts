@@ -1,7 +1,9 @@
 /**
- * 계약 타입 기준 목 데이터 — backend 엔드포인트 미완 구간의 UI 완성용.
+ * 계약 타입 기준 목 데이터 — 개발 데모용(opt-in). 기본 비활성.
  * 모든 반환값은 @contract shape을 100% 준수한다(제네릭 캐스팅·임의 필드 금지).
- * backend 준비 시 lib/api.ts의 USE_MOCK만 꺼지고 이 파일은 사용되지 않는다.
+ * NEXT_PUBLIC_USE_MOCK='true'일 때만 lib/api.ts가 이 파일을 사용하며,
+ * 활성 시 전역 배지(MockBadge)가 표시된다. 문항은 소수 템플릿의 순환 복제라
+ * 반복 노출됨 — 실 검사 대체 불가(재발 방지 조치의 배경).
  */
 import {
   PRODUCT_ITEM_COUNT, TIER_SCALE, SECTION_MATRIX, UPGRADE_BANNER, FUNCTION_STACK,

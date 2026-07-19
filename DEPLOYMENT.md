@@ -28,9 +28,10 @@ git push -u origin main
 | 키 | 값 | 비고 |
 |---|---|---|
 | `DATABASE_URL` | `postgresql://postgres.udgnzyqovpbvvfggskkx:<PW>@aws-1-ap-northeast-2.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1` | **런타임은 Transaction pooler(6543)+pgbouncer** — 서버리스 필수 |
-| `NEXT_PUBLIC_USE_MOCK` | `false` | 실 API 사용 |
 
+> `NEXT_PUBLIC_USE_MOCK`은 설정 불필요 — **기본이 실 API**다(미설정 = 실 연결). 목 모드는 `true`로 명시했을 때만 켜지며 전 화면에 "목 모드" 배지가 표시된다. (과거 기본목 정책으로 env 누락 시 배포 사이트가 예시 문항을 노출한 사고의 재발 방지.)
 > ⚠️ 비밀번호의 `!`,`@`는 URL 인코딩(`%21`,`%40`). `.env`는 배포되지 않으므로 값은 Netlify 대시보드에만 입력한다.
+> ⚠️ `NEXT_PUBLIC_*`는 빌드 시점에 번들에 포함되므로, 환경변수 변경 후에는 **Clear cache and deploy site**로 재빌드해야 반영된다.
 
 ## Step 4 — DB 마이그레이션·시드 (로컬에서 Supabase 대상, 1회)
 Netlify 빌드는 마이그레이션하지 않는다. 스키마·시드는 로컬에서 **Session pooler(5432)** 로 반영한다(이미 완료된 상태라면 생략):

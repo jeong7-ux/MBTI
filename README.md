@@ -32,10 +32,10 @@ npm run build            # next build
 # 실 API·DB 기동 (선택)
 cp .env.example .env      # DATABASE_URL 설정
 npm run prisma:migrate
-npm run db:seed          # 매핑 샘플 24문항 시드
-npm run dev              # NEXT_PUBLIC_USE_MOCK=false 로 실 API 연결
+npm run db:seed          # 실 144문항 시드
+npm run dev              # 기본 실 API 연결 (DATABASE_URL 필요)
 ```
-프론트는 기본 목(mock) 데이터로 DB 없이 동작하며, `NEXT_PUBLIC_USE_MOCK=false`로 실 API에 연결한다.
+프론트는 **기본 실 API**에 연결한다(미설정 = 실 연결). DB 없이 UI만 볼 때는 `NEXT_PUBLIC_USE_MOCK=true`로 목 모드를 명시적으로 켠다 — 활성 시 전 화면에 "목 모드" 배지가 표시된다(예시 데이터 오인 방지).
 
 ## 핵심 도메인 (PRD v1.2 / v1.1)
 - **검사 상품 3종**: 간편(basic·32) / 일반(standard·72) / 전문(pro·144). 단일 문항은행·엔진 위 `product_tags`(basic⊂standard⊂pro) 균형 추출.

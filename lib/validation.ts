@@ -79,6 +79,18 @@ export const adminContentSchema = z.object({
   }),
 });
 
+// ── 관리자 패널(하드코딩 운영 계정 — 계약 lib/contract 외 전용 스키마) ──────
+// POST /api/admin/login
+export const adminLoginSchema = z.object({
+  username: z.string().min(1),
+  password: z.string().min(1),
+});
+
+// POST /api/admin/reset — 파괴적 작업 서버측 2차 가드.
+export const adminResetSchema = z.object({
+  confirm: z.literal('DELETE_ALL'),
+});
+
 export const adminAssetSchema = z.object({
   asset: z.object({
     typeCode: z.string(),

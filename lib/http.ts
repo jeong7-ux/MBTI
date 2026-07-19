@@ -34,6 +34,8 @@ export const ERR = {
   UNAUTHORIZED: () => fail('UNAUTHORIZED', '본인만 열람할 수 있습니다.', 403),
   AGE_RESTRICTED: () => fail('AGE_RESTRICTED', '만 14세 미만은 이용할 수 없습니다.', 403),
   NAMING_VIOLATION: (d?: Record<string, unknown>) => fail('NAMING_VIOLATION', '에셋 파일명 규칙 위반.', 422, d),
+  INVALID_CREDENTIALS: () => fail('INVALID_CREDENTIALS', '아이디 또는 비밀번호가 올바르지 않습니다.', 401),
+  ADMIN_UNAUTHORIZED: () => fail('ADMIN_UNAUTHORIZED', '관리자 인증이 필요합니다.', 401),
   INTERNAL: (msg = '서버 오류') => fail('INTERNAL_ERROR', msg, 500),
 };
 

@@ -273,6 +273,9 @@ h3.blk::before { content: ""; width: 8px; height: 8px; border-radius: 3px; backg
 .btn:active { transform: scale(.98); }
 .btn-primary { background: var(--pine); border-color: var(--pine); color: #fff; }
 .btn-primary:hover { background: var(--pine-deep); border-color: var(--pine-deep); }
+/* 파괴적 액션 전용 — 흰 글자/–-red-deep 배경 대비 ≈6.8:1(WCAG AA 통과). 관리자 위험구역에서만 사용. */
+.btn-danger { background: var(--red-deep); border-color: var(--red-deep); color: #fff; }
+.btn-danger:hover { background: #8E1820; border-color: #8E1820; }
 .btn-block { display: flex; width: 100%; }
 .btn:disabled { opacity: .5; cursor: not-allowed; }
 

@@ -10,7 +10,10 @@ export default function LandingPage() {
           <div className="logo">MT</div>
           <h1>마인드타입<small>전문 성격유형 검사</small></h1>
         </Link>
-        <Link className="ver" href="/library">16유형 라이브러리</Link>
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', justifyContent: 'flex-end' }}>
+          <Link className="ver" href="/library">16유형 라이브러리</Link>
+          <Link className="ver" href="/admin">관리자</Link>
+        </div>
       </div>
 
       {/* 히어로 */}

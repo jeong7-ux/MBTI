@@ -19,27 +19,31 @@ async function main() {
   const raw = JSON.parse(readFileSync(path, 'utf-8')) as { questions: SeedQuestion[] };
 
   for (const q of raw.questions) {
+    const fields = {
+      code: q.code,
+      part: q.part,
+      format: q.format as Format,
+      dimension: q.dimension as Dimension,
+      poleA: q.pole_a as Pole,
+      poleB: q.pole_b as Pole,
+      textA: q.text_a,
+      textB: q.text_b,
+      stem: q.stem,
+      facet: q.facet,
+      facetPoleA: q.facet_pole_a as Pole | null,
+      facetPoleB: q.facet_pole_b as Pole | null,
+      productTags: q.product_tags as Product[],
+      version: q.version,
+      questionSetVersion: q.question_set_version,
+      isActive: q.is_active,
+    };
     await prisma.question.upsert({
       where: { id: q.question_id },
-      update: {},
+      // 재시드 시 텍스트(stem·text)와 메타를 실제로 갱신 — 기존 플레이스홀더 덮어쓰기
+      update: fields,
       create: {
         id: q.question_id,
-        code: q.code,
-        part: q.part,
-        format: q.format as Format,
-        dimension: q.dimension as Dimension,
-        poleA: q.pole_a as Pole,
-        poleB: q.pole_b as Pole,
-        textA: q.text_a,
-        textB: q.text_b,
-        stem: q.stem,
-        facet: q.facet,
-        facetPoleA: q.facet_pole_a as Pole | null,
-        facetPoleB: q.facet_pole_b as Pole | null,
-        productTags: q.product_tags as Product[],
-        version: q.version,
-        questionSetVersion: q.question_set_version,
-        isActive: q.is_active,
+        ...fields,
       },
     });
   }
